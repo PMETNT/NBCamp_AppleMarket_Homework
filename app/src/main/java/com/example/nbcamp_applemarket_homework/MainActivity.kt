@@ -10,11 +10,13 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AlphaAnimation
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.nbcamp_applemarket_homework.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -64,10 +66,64 @@ class MainActivity : AppCompatActivity() {
 
             }
 
+        /**
+         * onLongClick
+         */
 
-    }
+        adapter.itemLongClick = object : AppleAdapter.ItemLongClick {
+            override fun onLongClick(view: View, position: Int) {
+                val ad = AlertDialog.Builder(this@MainActivity)
+                ad.setIcon(R.drawable.chat)
+                ad.setTitle("상품 삭제")
+                ad.setMessage("상품을 정말로 삭제하시겠습니까?")
+                ad.setPositiveButton("확인") { dialog, _ ->
+                    itemList.removeAt(position)
+                    adapter.notifyItemRemoved(position)
+                }
+
+                ad.setNegativeButton("취소") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                ad.show()
+            }
+        }
+
+        /**
+         *  스크롤 상단 이동
+         */
+        binding.mainScrollupArrow.setOnClickListener {
+            binding.appleRecyclerView.smoothScrollToPosition(0)
+        }
+        val fadeIn = AlphaAnimation(0f, 1f).apply { duration = 500 }
+        val fadeOut = AlphaAnimation(1f, 0f).apply { duration = 500}
+        var isTop = true
+
+        binding.appleRecyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (!binding.appleRecyclerView.canScrollVertically(-1)
+                    && newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    binding.mainScrollupArrow.startAnimation(fadeOut)
+                    binding.mainScrollupArrow.visibility = View.GONE
+                    isTop = true
+                } else {
+                    if(isTop) {
+                        binding.mainScrollupArrow.visibility = View.VISIBLE
+                        binding.mainScrollupArrow.startAnimation(fadeIn)
+                        isTop = false
+                    }
+                }
+            }
+        })
 
 
+
+
+
+
+    }//onCreate
+
+// ---------------------
     /** 다이얼로그
      */
     override fun onBackPressed() {
