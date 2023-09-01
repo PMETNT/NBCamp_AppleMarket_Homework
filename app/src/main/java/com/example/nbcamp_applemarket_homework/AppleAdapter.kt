@@ -61,6 +61,12 @@ class AppleAdapter(private val appleList: MutableList<AppleDataClass>) :
         holder.itemView.setOnClickListener {
             itemClick?.onClick(it, position)}
 
+        /*롱 클릭 리스너*/
+        holder.itemView.setOnLongClickListener() OnLongClickListener@{
+            itemLongClick?.onLongClick(it, position)
+            return@OnLongClickListener true
+        }
+
 
 
         holder.apply {
